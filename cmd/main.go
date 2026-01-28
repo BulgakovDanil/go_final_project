@@ -22,7 +22,7 @@ func main() {
 		port = "7540"
 	}
 
-	http.Handle("/", http.FileServer(http.Dir("./web")))
+	http.Handle("/", http.FileServer(http.Dir("../web")))
 
 	fmt.Println("Сервер запущен")
 	http.ListenAndServe(":"+port, nil)

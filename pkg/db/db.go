@@ -26,7 +26,7 @@ func Init(dbFile string) error {
 	//Директория к БД
 	dataDir := os.Getenv("TODO_DBFILE")
 	if dataDir == "" {
-		dataDir = "data"
+		dataDir = ".."
 	}
 
 	//Создаем директорию
