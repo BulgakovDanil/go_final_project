@@ -23,8 +23,9 @@ CREATE INDEX date_id ON scheduler (date)`
 var DB *sql.DB
 
 func Init(dbFile string) error {
-	//Директория к БД
+	//Получаем директорию из переменной TODO_DBFILE
 	dataDir := os.Getenv("TODO_DBFILE")
+	//Директория по умолчанию
 	if dataDir == "" {
 		dataDir = ".."
 	}
