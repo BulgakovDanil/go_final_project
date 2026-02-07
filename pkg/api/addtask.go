@@ -14,6 +14,10 @@ func TaskHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		addTaskHandler(w, r)
+	case http.MethodGet:
+		tasksHandler(w, r)
+	default:
+		writeJsonError(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 
 }
@@ -114,7 +118,7 @@ func checkDate(task *db.Task) error {
 	return nil
 }
 
-// writeJson Вспомогательная функция для отправки JSON ответов
+// writeJson Вспомогательная функция для отправки JSON тветов
 func writeJson(w http.ResponseWriter, data any, status int) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(status)

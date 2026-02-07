@@ -29,7 +29,8 @@ func main() {
 	}
 
 	//Регистрируем обработчик для фронт файлов
-	http.Handle("/", http.FileServer(http.Dir("../web")))
+	fs := http.FileServer(http.Dir("../web"))
+	http.Handle("/", fs)
 
 	//Запускаем сервер
 	fmt.Println("Сервер запущен")
