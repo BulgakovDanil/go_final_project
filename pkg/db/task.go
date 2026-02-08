@@ -190,3 +190,39 @@ func SearchDate(date string, limit int) ([]*Task, error) {
 	return tasks, nil
 
 }
+
+func GetTask(id string) (*Task, error) {
+	if id == "" {
+		return nil, fmt.Errorf("empty id")
+	}
+
+	task := &Task{}
+
+	err := DB.QueryRow("SELECT * FROM scheduler WHERE id = ?", id).Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)
+	if err != nil {
+		return nil, fmt.Errorf("query error")
+	}
+
+	return task, nil
+}
+
+func UpdateTask(task *Task) error {
+
+	query := `UPDATE scheduler SET date = ?, title = ?, comment = ?, repeat = ? WHERE id = ?`
+
+	res, err := DB.Exec(query, task.Date, task.Title, task.Comment, task.Repeat, task.ID)
+	if err != nil {
+		return err
+	}
+
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if count == 0 {
+		return fmt.Errorf(`incorrect id for updating task`)
+	}
+
+	return nil
+}

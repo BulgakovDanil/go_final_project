@@ -15,7 +15,9 @@ func TaskHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		addTaskHandler(w, r)
 	case http.MethodGet:
-		tasksHandler(w, r)
+		getTaskHandler(w, r)
+	case http.MethodPut:
+		putTaskHandler(w, r)
 	default:
 		writeJsonError(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
@@ -73,16 +75,79 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func getTaskHandler(w http.ResponseWriter, r *http.Request) {
+	//Проверяем метод запроса
+	if r.Method != http.MethodGet {
+		writeJsonError(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id := r.URL.Query().Get("id")
+
+	task, err := db.GetTask(id)
+	if err != nil {
+		writeJsonError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	writeJson(w, task, http.StatusOK)
+}
+
+func putTaskHandler(w http.ResponseWriter, r *http.Request) {
+	//Проверяем что запрос использует метот PUT
+	if r.Method != http.MethodPut {
+		writeJsonError(w, "Medhod not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	//Читает тело запроса
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		writeJsonError(w, "Error reading body", http.StatusBadRequest)
+		return
+	}
+
+	//Отложенное закрытие Body
+	defer r.Body.Close()
+
+	//Парсим JSON в структуру task
+	var task db.Task
+	err = json.Unmarshal(body, &task)
+	if err != nil {
+		writeJsonError(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	//Заголовок задачи не должен быть пустым
+	if task.Title == "" {
+		writeJsonError(w, "an empty parameter 'Title'", http.StatusBadRequest)
+		return
+	}
+
+	//Проверям и корректируем дату задачи
+	err = checkDate(&task)
+	if err != nil {
+		writeJsonError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	//Сохраняем задачу в базу данных
+	err = db.UpdateTask(&task)
+	if err != nil {
+		writeJsonError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	//Возвращаем ответ
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("{}"))
+}
+
 // checDate функция проверяет и корректирует дату
 func checkDate(task *db.Task) error {
 	now := time.Now()
 	today := now.Format("20060102")
-
-	//Если правило ежедневное, то устанавливаем текущую дату
-	if task.Repeat == "d 1" {
-		task.Date = today
-		return nil
-	}
 
 	//Если дата не указана, то устанавливаем текущую
 	if task.Date == "" {
@@ -106,7 +171,7 @@ func checkDate(task *db.Task) error {
 	}
 
 	//Проверямем что дата больше текущей даты
-	if afterNow(now, t) {
+	if !afterNow(now, t) {
 		if len(task.Repeat) == 0 {
 			//Если нету правила, то устанавливаем текущую
 			task.Date = today
