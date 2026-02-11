@@ -191,6 +191,7 @@ func SearchDate(date string, limit int) ([]*Task, error) {
 
 }
 
+// GetTask извлекает задачу из базы данных по id
 func GetTask(id string) (*Task, error) {
 	if id == "" {
 		return nil, fmt.Errorf("empty id")
@@ -206,6 +207,7 @@ func GetTask(id string) (*Task, error) {
 	return task, nil
 }
 
+// UpdateTask Обнавляет существующую задачу в базе данных
 func UpdateTask(task *Task) error {
 
 	query := `UPDATE scheduler SET date = ?, title = ?, comment = ?, repeat = ? WHERE id = ?`
@@ -225,4 +227,44 @@ func UpdateTask(task *Task) error {
 	}
 
 	return nil
+}
+
+// DeletTask удаляет задачу с базы данных
+func DeletTask(id string) error {
+
+	result, err := DB.Exec("DELETE FROM scheduler WHERE id = ?", id)
+	if err != nil {
+		return fmt.Errorf("database error: %v", err)
+	}
+
+	count, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if count == 0 {
+		return fmt.Errorf("task not found")
+	}
+
+	return nil
+}
+
+func UpdateDate(task *Task, date string) error {
+
+	res, err := DB.Exec("UPDATE scheduler SET date = ? WHERE id = ?", date, task.ID)
+	if err != nil {
+		return err
+	}
+
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if count == 0 {
+		return fmt.Errorf(`incorrect id for updating task`)
+	}
+
+	return nil
+
 }

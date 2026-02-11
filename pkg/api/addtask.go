@@ -18,6 +18,8 @@ func TaskHandler(w http.ResponseWriter, r *http.Request) {
 		getTaskHandler(w, r)
 	case http.MethodPut:
 		putTaskHandler(w, r)
+	case http.MethodDelete:
+		deleteTaskHendler(w, r)
 	default:
 		writeJsonError(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
@@ -139,9 +141,26 @@ func putTaskHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Возвращаем ответ
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("{}"))
+	writeEmptyJson(w, http.StatusOK)
+}
+
+func deleteTaskHendler(w http.ResponseWriter, r *http.Request) {
+	//Проверяем метод запроса
+	if r.Method != http.MethodDelete {
+		writeJsonError(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	id := r.URL.Query().Get("id")
+
+	err := db.DeletTask(id)
+	if err != nil {
+		writeJsonError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	writeEmptyJson(w, http.StatusOK)
+
 }
 
 // checDate функция проверяет и корректирует дату
@@ -171,8 +190,8 @@ func checkDate(task *db.Task) error {
 	}
 
 	//Проверямем что дата больше текущей даты
-	if !afterNow(now, t) {
-		if len(task.Repeat) == 0 {
+	if afterNow(now, t) {
+		if task.Repeat == "" {
 			//Если нету правила, то устанавливаем текущую
 			task.Date = today
 		} else {
@@ -197,4 +216,11 @@ func writeJsonError(w http.ResponseWriter, message string, status int) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"error": message,
 	})
+}
+
+// writeEmptyJson Вспомогательная функция для отправки пустых Json ответов
+func writeEmptyJson(w http.ResponseWriter, status int) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(status)
+	w.Write([]byte("{}"))
 }

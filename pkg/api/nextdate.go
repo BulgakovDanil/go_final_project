@@ -97,10 +97,7 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 
 // afterNow функция проверяет, что дата позже текущей даты
 func afterNow(date, now time.Time) bool {
-	if date.After(now) {
-		return true
-	}
-	return false
+	return date.Format("20060102") > now.Format("20060102")
 }
 
 // next функция вычисляет следующую дату на основе правила
