@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -28,11 +29,6 @@ func TaskHandler(w http.ResponseWriter, r *http.Request) {
 
 // addTaskHandler обработчик для добавленной задачи
 func addTaskHandler(w http.ResponseWriter, r *http.Request) {
-	//Проверяем что запрос использует метот POST
-	if r.Method != http.MethodPost {
-		writeJsonError(w, "Medhod not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	//Читает тело запроса
 	body, err := io.ReadAll(r.Body)
@@ -40,9 +36,6 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 		writeJsonError(w, "Error reading body", http.StatusBadRequest)
 		return
 	}
-
-	//Отложенное закрытие Body
-	defer r.Body.Close()
 
 	//Парсим JSON в структуру task
 	var task db.Task
@@ -78,11 +71,6 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getTaskHandler(w http.ResponseWriter, r *http.Request) {
-	//Проверяем метод запроса
-	if r.Method != http.MethodGet {
-		writeJsonError(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	id := r.URL.Query().Get("id")
 
@@ -96,11 +84,6 @@ func getTaskHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func putTaskHandler(w http.ResponseWriter, r *http.Request) {
-	//Проверяем что запрос использует метот PUT
-	if r.Method != http.MethodPut {
-		writeJsonError(w, "Medhod not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	//Читает тело запроса
 	body, err := io.ReadAll(r.Body)
@@ -108,9 +91,6 @@ func putTaskHandler(w http.ResponseWriter, r *http.Request) {
 		writeJsonError(w, "Error reading body", http.StatusBadRequest)
 		return
 	}
-
-	//Отложенное закрытие Body
-	defer r.Body.Close()
 
 	//Парсим JSON в структуру task
 	var task db.Task
@@ -145,11 +125,6 @@ func putTaskHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteTaskHendler(w http.ResponseWriter, r *http.Request) {
-	//Проверяем метод запроса
-	if r.Method != http.MethodDelete {
-		writeJsonError(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	id := r.URL.Query().Get("id")
 
@@ -166,7 +141,7 @@ func deleteTaskHendler(w http.ResponseWriter, r *http.Request) {
 // checDate функция проверяет и корректирует дату
 func checkDate(task *db.Task) error {
 	now := time.Now()
-	today := now.Format("20060102")
+	today := now.Format(DateFormat)
 
 	//Если дата не указана, то устанавливаем текущую
 	if task.Date == "" {
@@ -175,7 +150,7 @@ func checkDate(task *db.Task) error {
 	}
 
 	//Парсим дату, проверяем формат
-	t, err := time.Parse("20060102", task.Date)
+	t, err := time.Parse(DateFormat, task.Date)
 	if err != nil {
 		return fmt.Errorf("invalid 'Date' format: %v", err)
 	}
@@ -222,5 +197,8 @@ func writeJsonError(w http.ResponseWriter, message string, status int) {
 func writeEmptyJson(w http.ResponseWriter, status int) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(status)
-	w.Write([]byte("{}"))
+	_, err := w.Write([]byte("{}"))
+	if err != nil {
+		log.Printf("Error writing empty JSON: %v", err)
+	}
 }

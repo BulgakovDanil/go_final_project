@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -37,7 +38,7 @@ func NextDateHandler(w http.ResponseWriter, r *http.Request) {
 	//Обработка параметра 'now'
 	if nowStr != "" {
 		//Если передан, парсим его
-		parsedNow, err := time.Parse("20060102", nowStr)
+		parsedNow, err := time.Parse(DateFormat, nowStr)
 		if err != nil {
 			http.Error(w, "invalid 'now' format ", http.StatusBadRequest)
 			return
@@ -57,7 +58,10 @@ func NextDateHandler(w http.ResponseWriter, r *http.Request) {
 
 	//Возвращаем дату
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(nextDate))
+	_, err = w.Write([]byte(nextDate))
+	if err != nil {
+		log.Printf("Error writing response in NextDateHandler: %v", err)
+	}
 
 }
 
@@ -70,7 +74,7 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	}
 
 	//Парсим начальную дату
-	date, err := time.Parse("20060102", dstart)
+	date, err := time.Parse(DateFormat, dstart)
 	if err != nil {
 		return "", fmt.Errorf("invalid date format: %v", err)
 	}
@@ -92,12 +96,12 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	}
 
 	//Возвращаем дату в формате "YYYYMMDD"
-	return date.Format("20060102"), nil
+	return date.Format(DateFormat), nil
 }
 
 // afterNow функция проверяет, что дата позже текущей даты
 func afterNow(date, now time.Time) bool {
-	return date.Format("20060102") > now.Format("20060102")
+	return date.Format(DateFormat) > now.Format(DateFormat)
 }
 
 // next функция вычисляет следующую дату на основе правила

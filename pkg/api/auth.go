@@ -17,8 +17,7 @@ func SigninHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Получаем пароль из переменной окружения
-	expectedPass := os.Getenv("TODO_PASSWORD")
+	expectedPass := password
 
 	// Если пароль не установлен - авторизация не нужна
 	if expectedPass == "" {

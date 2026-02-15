@@ -32,6 +32,6 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir("./web")))
 
 	//Запускаем сервер
-	fmt.Println("Сервер запущен")
+	fmt.Printf("Сервер запущен на порту %s", port)
 	http.ListenAndServe(":"+port, nil)
 }

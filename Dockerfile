@@ -1,4 +1,4 @@
-FROM golang:1.21 AS builder
+FROM golang:1.25 AS builder
 
 WORKDIR /build
 COPY go.mod go.sum ./
@@ -7,7 +7,7 @@ COPY . .
 
 RUN go build -o todo-app ./cmd/server
 
-FROM ubuntu:latest
+FROM alpine:latest
 
 WORKDIR /app
 
