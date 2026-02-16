@@ -40,3 +40,11 @@ TODO_PORT=8080 TODO_DBFILE=/custom/path/db.db TODO_PASSWORD=123 go run ./cmd/ser
 
 ### Команда
 go test ./tests -v
+
+## Запуск через Docker
+
+# Запуск
+docker run -d -p 7540:7540 -v ~/todo-data:/data my-scheduler
+
+# Запуск на другом порту (например 8080)
+docker run -d -p 8080:8080 -v ~/todo-data:/data -e TODO_PORT=8080 my-scheduler

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/BulgakovDanil/go_final_project/pkg/constants"
 	"github.com/BulgakovDanil/go_final_project/pkg/db"
 )
 
@@ -141,7 +142,7 @@ func deleteTaskHendler(w http.ResponseWriter, r *http.Request) {
 // checDate функция проверяет и корректирует дату
 func checkDate(task *db.Task) error {
 	now := time.Now()
-	today := now.Format(DateFormat)
+	today := now.Format(constants.DateFormat)
 
 	//Если дата не указана, то устанавливаем текущую
 	if task.Date == "" {
@@ -150,7 +151,7 @@ func checkDate(task *db.Task) error {
 	}
 
 	//Парсим дату, проверяем формат
-	t, err := time.Parse(DateFormat, task.Date)
+	t, err := time.Parse(constants.DateFormat, task.Date)
 	if err != nil {
 		return fmt.Errorf("invalid 'Date' format: %v", err)
 	}

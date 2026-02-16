@@ -3,6 +3,8 @@ package db
 import (
 	"fmt"
 	"time"
+
+	"github.com/BulgakovDanil/go_final_project/pkg/constants"
 )
 
 // Структура таблицы scheduler базы данных
@@ -32,7 +34,7 @@ func Tasks(limit int) ([]*Task, error) {
 	//Устанавливаем значение по умолчанию для limit
 	var tasks []*Task
 	if limit <= 0 {
-		limit = 50
+		limit = constants.TasksLimit
 	}
 
 	//SQL запрос с сортировкой по дате
@@ -72,6 +74,11 @@ func Tasks(limit int) ([]*Task, error) {
 		tasks = append(tasks, task)
 	}
 
+	err = rows.Err()
+	if err != nil {
+		return tasks, fmt.Errorf("rows iteration error: %v", err)
+	}
+
 	//Если tasks равен nil, возавращаем пустой слайс
 	if tasks == nil {
 		tasks = []*Task{}
@@ -85,7 +92,7 @@ func Tasks(limit int) ([]*Task, error) {
 func SearchText(search string, limit int) ([]*Task, error) {
 
 	if limit <= 0 {
-		limit = 50
+		limit = constants.TasksLimit
 	}
 
 	var tasks []*Task
@@ -124,6 +131,11 @@ func SearchText(search string, limit int) ([]*Task, error) {
 		tasks = append(tasks, task)
 	}
 
+	err = rows.Err()
+	if err != nil {
+		return tasks, fmt.Errorf("rows iteration error: %v", err)
+	}
+
 	//Возвращаем пустой слайс вместо nil
 	if tasks == nil {
 		tasks = []*Task{}
@@ -137,7 +149,7 @@ func SearchText(search string, limit int) ([]*Task, error) {
 func SearchDate(date string, limit int) ([]*Task, error) {
 
 	if limit <= 0 {
-		limit = 50
+		limit = constants.TasksLimit
 	}
 
 	var tasks []*Task
@@ -149,7 +161,7 @@ func SearchDate(date string, limit int) ([]*Task, error) {
 	}
 
 	//Преобразуем дату в формат YYYYMMDD
-	targetDate := t.Format("20060102")
+	targetDate := t.Format(constants.DateFormat)
 
 	//SQL запрос для поиска по дате
 	query := `SELECT * FROM scheduler WHERE date = ? ORDER BY date LIMIT ?`
@@ -180,6 +192,11 @@ func SearchDate(date string, limit int) ([]*Task, error) {
 		}
 
 		tasks = append(tasks, task)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return tasks, fmt.Errorf("rows iteration error: %v", err)
 	}
 
 	//Возвращаем пустой слайс вместо nil

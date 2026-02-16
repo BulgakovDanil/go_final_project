@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/BulgakovDanil/go_final_project/pkg/constants"
 	"github.com/BulgakovDanil/go_final_project/pkg/db"
 )
 
@@ -31,15 +32,15 @@ func tasksHandler(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case search == "":
 		//Если параметр search пустой - возвращаем все задачи
-		tasks, err = db.Tasks(50)
+		tasks, err = db.Tasks(constants.TasksLimit)
 
 	case isDate(search):
 		//Если serch соотвествует формату даты - поиск по дате
-		tasks, err = db.SearchDate(search, 50)
+		tasks, err = db.SearchDate(search, constants.TasksLimit)
 
 	default:
 		//Если search не пустой и не дата - поиск по тексту
-		tasks, err = db.SearchText(search, 50)
+		tasks, err = db.SearchText(search, constants.TasksLimit)
 	}
 
 	//Если при выполнении запроса к БД произошла ошибка

@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/BulgakovDanil/go_final_project/pkg/constants"
 )
 
 func NextDateHandler(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +40,7 @@ func NextDateHandler(w http.ResponseWriter, r *http.Request) {
 	//Обработка параметра 'now'
 	if nowStr != "" {
 		//Если передан, парсим его
-		parsedNow, err := time.Parse(DateFormat, nowStr)
+		parsedNow, err := time.Parse(constants.DateFormat, nowStr)
 		if err != nil {
 			http.Error(w, "invalid 'now' format ", http.StatusBadRequest)
 			return
@@ -74,7 +76,7 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	}
 
 	//Парсим начальную дату
-	date, err := time.Parse(DateFormat, dstart)
+	date, err := time.Parse(constants.DateFormat, dstart)
 	if err != nil {
 		return "", fmt.Errorf("invalid date format: %v", err)
 	}
@@ -96,12 +98,12 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	}
 
 	//Возвращаем дату в формате "YYYYMMDD"
-	return date.Format(DateFormat), nil
+	return date.Format(constants.DateFormat), nil
 }
 
 // afterNow функция проверяет, что дата позже текущей даты
 func afterNow(date, now time.Time) bool {
-	return date.Format(DateFormat) > now.Format(DateFormat)
+	return date.Format(constants.DateFormat) > now.Format(constants.DateFormat)
 }
 
 // next функция вычисляет следующую дату на основе правила
