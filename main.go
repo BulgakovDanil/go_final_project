@@ -18,6 +18,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	defer db.DB.Close()
+
 	//Инициализация API маршрутов
 	api.Init()
 
