@@ -30,10 +30,10 @@ TODO_PASSWORD - пароль для авторизации (опциональн
 go mod download
 
 # запуск сервера
-go run ./cmd/server
+go run main.go
 
 # запуск с параметрами
-TODO_PORT=8080 TODO_DBFILE=/custom/path/db.db TODO_PASSWORD=123 go run ./cmd/server
+TODO_PORT=8080 TODO_DBFILE=/custom/path/db.db TODO_PASSWORD=123 go run main.go
 После запуска открыть в браузере: http://localhost:7540 (или ваш порт)
 
 ## Запуск тестов
